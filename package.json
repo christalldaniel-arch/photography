@@ -26,6 +26,9 @@
     "url": "https://github.com/rampatra/photography/issues"
   },
   "homepage": "https://github.com/rampatra/photography#readme",
-  "devDependencies": {},
+  "devDependencies": {
+    "sass": "1.105.1",
+    "terser": "5.51.2"
+  },
   "private": true
 }
