@@ -2,10 +2,9 @@
   "name": "photography",
   "version": "5.0.0",
   "description": "A jekyll website for photographer cum developer",
-  "main": "npmfile.js",
   "scripts": {
-    "build": "gulp build",
-    "resize": "gulp resize",
+    "build": "node scripts/build.mjs",
+    "resize": "node scripts/resize.mjs",
     "test": "node --test --test-isolation=none tests/build.test.mjs"
   },
   "repository": {
@@ -27,14 +26,6 @@
     "url": "https://github.com/rampatra/photography/issues"
   },
   "homepage": "https://github.com/rampatra/photography#readme",
-  "devDependencies": {
-    "del": "^4.1.1",
-    "gulp": "^4.0.2",
-    "gulp-filter": "^9.0.1",
-    "gulp-image-resize": "^0.13.1",
-    "gulp-rename": "^1.4.0",
-    "gulp-sass": "^5.0.0",
-    "gulp-uglify": "^3.0.0",
-    "sass": "^1.25.0"
-  }
+  "devDependencies": {},
+  "private": true
 }

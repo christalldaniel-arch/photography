@@ -7,8 +7,7 @@ import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
 const project = fileURLToPath(new URL('../', import.meta.url));
-const gulpCli = path.join(project, 'node_modules/gulp/bin/gulp.js');
-const dependenciesAvailable = existsSync(gulpCli);
+const dependenciesAvailable = existsSync(path.join(project, 'node_modules/sass')) && existsSync(path.join(project, 'node_modules/terser'));
 const imageMagickAvailable = spawnSync('convert', ['-version']).status === 0;
 const skipBuild = !dependenciesAvailable && 'Run npm ci before integration tests';
 const skipImages = skipBuild || (!imageMagickAvailable && 'Install ImageMagick before image tests');
@@ -26,10 +25,9 @@ function fixture(run) {
     }
 }
 
-function gulp(directory, task) {
-    return spawnSync(process.execPath, [gulpCli, '--cwd', directory,
-        '--gulpfile', path.join(project, 'gulpfile.mjs'), task],
-    { encoding: 'utf8', timeout: 60000 });
+function runTask(directory, task) {
+    return spawnSync(process.execPath, [path.join(project, 'scripts', task === 'resize' ? 'resize.mjs' : 'build.mjs')],
+        { cwd: directory, encoding: 'utf8', timeout: 60000 });
 }
 
 function successful(result) {
@@ -43,7 +41,7 @@ test('resize preserves the original and creates full-size and thumbnail outputs'
     const original = path.join(images, 'source.png');
     successful(spawnSync('convert', ['-size', '1600x1200', 'xc:red', original], { encoding: 'utf8' }));
     const bytes = readFileSync(original);
-    successful(gulp(directory, 'resize'));
+    successful(runTask(directory, 'resize'));
     assert.deepEqual(readFileSync(original), bytes, 'Original image must remain intact');
     for (const [folder, width] of [['fulls', 1024], ['thumbs', 512]]) {
         const resized = path.join(images, folder, 'source.png');
@@ -60,7 +58,7 @@ test('asset build compiles CSS and minifies JS without touching originals', { sk
     writeFileSync(path.join(directory, 'assets/sass/main.scss'), 'body { color: red; }');
     writeFileSync(path.join(directory, 'assets/js/main.js'), 'function double(value) { return value * 2; }');
     writeFileSync(path.join(directory, 'images/original.jpg'), 'untouched');
-    successful(gulp(directory, 'default'));
+    successful(runTask(directory, 'default'));
     assert.match(readFileSync(path.join(directory, 'assets/css/main.min.css'), 'utf8'), /color:red/);
     assert.ok(readFileSync(path.join(directory, 'assets/js/main.min.js')).length > 0);
     assert.equal(readFileSync(path.join(directory, 'images/original.jpg'), 'utf8'), 'untouched');
@@ -69,7 +67,7 @@ test('asset build compiles CSS and minifies JS without touching originals', { sk
 test('invalid Sass fails the build instead of reporting success', { skip: skipBuild }, () => fixture(directory => {
     mkdirSync(path.join(directory, 'assets/sass'), { recursive: true });
     writeFileSync(path.join(directory, 'assets/sass/main.scss'), 'body { color: ;');
-    const result = gulp(directory, 'build');
+    const result = runTask(directory, 'build');
     assert.ifError(result.error);
     assert.notEqual(result.status, 0, result.stdout + result.stderr);
 }));
