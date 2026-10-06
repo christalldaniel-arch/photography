@@ -32,8 +32,11 @@ And, of course, you don't want my name at the bottom to show up. You can change 
 
 ### Build the website
 1. `$ cd photography` - go to the project directory
-2. `$ npm install` - install all npm dependencies
-3. `$ gulp` - minify css, js, resize images, etc.
+2. `$ npm ci` - install the locked npm dependencies
+3. `$ npm run build` - compile CSS and minify JavaScript
+4. `$ npm test` - verify builds and image resizing (requires ImageMagick)
+
+Image processing is explicit: `npm run resize` creates full-size images and thumbnails while preserving originals. The default Gulp task builds assets only. GitHub Actions verifies both the asset build and Jekyll site, and uploads the generated site as a downloadable artifact.
 
 Note: You only need to build the website if you make changes such as replacing the images, modifying the css styles, etc.
  

@@ -17,10 +17,6 @@ const generatedCssFiles = [
     `${cssOutputDir}/noscript.min.css`
 ];
 
-gulp.task('delete', function () {
-    return del(['images/*.*']);
-});
-
 gulp.task('resize-images', function () {
     return gulp.src('images/*.*')
         .pipe(imageResize({
@@ -43,7 +39,7 @@ gulp.task('clean-css', function () {
 // compile scss to css
 gulp.task('sass', gulp.series('clean-css', function compileSass() {
     return gulp.src(cssSourceGlob)  // Target all .scss files
-        .pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
+        .pipe(sass({ outputStyle: 'compressed' }))
         .pipe(rename(function (path) {
             path.basename += '.min';  // Append .min to the output filename
         }))
@@ -77,7 +73,7 @@ gulp.task('minify-js', function () {
 gulp.task('build', gulp.series('sass', 'minify-js'));
 
 // resize images
-gulp.task('resize', gulp.series('delete', 'resize-images'));
+gulp.task('resize', gulp.series('resize-images'));
 
 // default task
-gulp.task('default', gulp.series('build', 'resize'));
+gulp.task('default', gulp.series('build'));
